@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Flap Bird (PWA)</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#42a5f5">
+  <style>
+    html, body { margin:0; padding:0; background:#90caf9; height:100%; }
+    #wrap { display:flex; align-items:center; justify-content:center; height:100%; }
+    canvas { background:#87CEEB; touch-action:manipulation; display:block; max-width:100vw; max-height:100vh; }
+    .hud { position:fixed; top:0; left:0; right:0; padding:8px 12px; display:flex; justify-content:space-between; font-family:system-ui, -apple-system, Roboto, sans-serif; color:white; text-shadow:0 2px 3px rgba(0,0,0,0.35); }
+    .btn { background:rgba(0,0,0,0.2); border-radius:10px; padding:6px 10px; user-select:none; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div>Flap Bird (PWA)</div>
+    <div class="btn" id="installBtn" hidden>Instalar</div>
+  </div>
+  <div id="wrap">
+    <canvas id="game" width="540" height="960"></canvas>
+  </div>
+  <script src="game.js"></script>
+  <script>
+    // PWA install prompt
+    let deferredPrompt;
+    const btn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btn.hidden = false;
+    });
+    btn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      btn.hidden = true;
+    });
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
+  </script>
+</body>
+</html>
